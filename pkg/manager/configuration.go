@@ -4,21 +4,24 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+
+	"github.com/Masterminds/semver"
 )
 
 const settingsDirName = "a18mm"
 const settingsFileName = "settings.json"
 
-const appData = "appdata"
+const appDataEnvName = "appdata"
 
 type Configuration struct {
-	InstallLocation string `json:"installLocation"`
+	InstallLocation            string          `json:"installLocation"`
+	LastInstalledLoaderVersion *semver.Version `json:"lastInstalledLoaderVersion,omitempty"`
 }
 
-var settingsDirPath = filepath.Join(os.Getenv(appData), settingsDirName)
+var settingsDirPath = filepath.Join(os.Getenv(appDataEnvName), settingsDirName)
 var settingsFilePath = filepath.Join(settingsDirPath, settingsFileName)
 
-func (c *Configuration) save() error {
+func (c *Configuration) Save() error {
 	settingsByte, err := json.MarshalIndent(c, "", "    ")
 	if err != nil {
 		return err
@@ -75,7 +78,7 @@ func initConfiguration() (*Configuration, error) {
 
 	defaultConfiguration := Configuration{InstallLocation: *installLocation}
 
-	err = defaultConfiguration.save()
+	err = defaultConfiguration.Save()
 	if err != nil {
 		return nil, err
 	}
