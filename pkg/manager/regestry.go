@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"errors"
 	"fmt"
 
 	"golang.org/x/sys/windows"
@@ -20,7 +19,9 @@ type registrySearchPath struct {
 	key  registry.Key
 }
 
-func DetectGameInstallDir() error {
+// DetectGameInstallDir traverse various registry uninstall locations and searches for Anno 1800
+// returns the installation Location of Anno 1800 or nil if not found
+func DetectGameInstallDir() (*string, error) {
 
 	searchPaths := []registrySearchPath{
 		{
@@ -49,7 +50,7 @@ func DetectGameInstallDir() error {
 	for _, searchPath := range searchPaths {
 		installDir, err = searchRegistryPath(searchPath.key, searchPath.path)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if installDir != nil {
 			break
@@ -57,13 +58,7 @@ func DetectGameInstallDir() error {
 
 	}
 
-	if installDir == nil {
-		return errors.New("could not find game installation directory")
-	}
-
-	println(*installDir)
-
-	return nil
+	return installDir, nil
 
 }
 
